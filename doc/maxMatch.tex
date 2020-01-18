@@ -1,0 +1,221 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[latin2]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[left=2cm,top=3cm,text={17cm, 24cm}]{geometry}
+
+\begin{document}
+
+\begin{titlepage}
+  \begin{center}
+    \textsc{{\Huge Vysoké uèení technické v~Brnì \\}
+            {\huge Fakulta informaèních technologií \\}}
+
+    \vspace{\stretch{0.382}}
+
+    {\LARGE Grafové algoritmy\\}
+    {\Huge Hledání párování maximální kardinality\\}
+
+    \vspace{\stretch{0.618}}
+
+    {\Large \hfill Bc. Jiøí Chromeèka, xchrom12}\\
+    {\Large \hfill Bc. Jan Vybíral, xvybir05}
+  \end{center}
+\end{titlepage}
+
+\section{Úvod}
+
+Úkolem projektu bylo implementovat a~porovnat dva rùzné algoritmy pro hledání párování maximální kardinality.
+
+Zvolené grafy jsou nevá¾ené, neorientované a~bipartitní.
+
+\subsection{Hledání párování maximální kardinality}
+
+Uzly v~bipartitním grafu se dìlí do dvou disjunktních mno¾in a~hrany jsou podmno¾inou jejich kartézského souèinu.
+
+Cílem je najít takovou mno¾inu hran v~tomto grafu, kdy ¾ádné dvì hrany nemají spoleèný uzel a~mno¾ina má nejvìt¹í kardinalitu.
+
+\section{Hopcroft-Karp algoritmus}
+
+\texttt{Hopcroft-Karp} algoritmus vyu¾ívá tzv. roz¹iøující (augmenting) cesty, co¾ jsou cesty, ve kterých se støídají hrany mimo párování s~hranami z~párování, 
+poèet hran je lichý a~ka¾dá lichá hrana je mimo párování. Opakovaným nalezením mno¾iny nejkrat¹ích roz¹iøujících cest a~symetrickým rozdílem 
+s~párováním získáme nové párování s~vìt¹í kardinalitou. Algoritmus samotný cyklí mezi nìkolika fázemi.
+
+V~první fázi pomocí prohledávání do ¹íøky z~volných uzlù první mno¾iny se hledá nejkrat¹í roz¹iøující 
+cesta a~po jejím nalezení se v¹echny volné uzly z~druhé mno¾iny na této úrovní prohledávání vyu¾ijí do dal¹í fáze.
+
+Ve druhé fázi se prohledáváním do hloubky nad uzly z~pøedchozí fáze hledají nevyu¾ité uzly v~pøedchozích úrovních prohledávání, 
+dokud není nalezena roz¹iøující cesta, která tedy zahrnuje uzel z~pøedchozí fáze. Ka¾dá z~nalezených roz¹iøujících cest je pou¾ita v~párování.
+
+Algoritmus konèí, kdy¾ pøi prohledávání do ¹íøky nenalezne ¾ádnou nejkrat¹í roz¹iøující cestu.
+
+\subsection{Teoretická slo¾itost}
+
+V~grafu $G = (V, E)$, ka¾dá iterace fází trvá $\mathcal{O}(|E|)$, nebo» jakmile je pomocí prohledávání do ¹íøky nalezena nejkrat¹í roz¹iøující cesta,
+zpìtné prohledávání do hloubky z~této úrovnì navíc uva¾uje jen nenav¹tívené uzly a~ka¾dá hrana je prozkoumána jen jednou.
+
+Po $\sqrt{|V|}$ iteracích, nejkrat¹í roz¹iøující cesta v~kolekci má délku alespoò $\sqrt{|V|}$ hran. Pokud toto platí pro ka¾dou cestu, 
+mù¾e kolekce obsahovat nejvý¹e $\sqrt{|V|}$ cest. Tuto kolekci tvoøí symetrický rozdíl optimálního párování a~souèasného, 
+kdy optimální bude mít nejvý¹e o~$\sqrt{|V|}$ hran více ne¾ souèasné. Proto¾e ka¾dá iterace zvý¹í poèet hran párování alespoò o~jednu, 
+mù¾e probìhnout nejvý¹e $\sqrt{|V|}$ iterací, ne¾ algoritmus nalezne optimální párování, tedy $2\sqrt{|V|}$ celkovì.
+
+Teoretická slo¾itost algoritmu je poèet iterací * slo¾itost jedné iterace, tedy $\mathcal{O}(|E|*\sqrt{|V|})$ v~nejhor¹ím pøípadì.
+
+\section{Edmonds-Karp algoritmus}
+
+\texttt{Edmonds-Karp} algoritmus je verze \texttt{Ford-Fulkerson} algoritmu pro nalezení maximálního toku v síti. 
+Na zaèátku se nejprve nastaví tok v¹emi hranami na 0.
+Poté se v cyklu opakovanì hledá cesta od zdroje ke spotøebièi v reziduální síti s pomocí prohledávání do ¹íøky. V ka¾dé takto nalezené cestì se najde hrana s nejmen¹í reziduální kapacitou a o hodnotu této reziduální kapacity se zvý¹í tok danou cestou smìrem od zdroje ke spotøebièi. 
+Toto se provádí dokud lze v reziduální síti nalézt nìjakou cestu od zdroje ke spotøebièi, na které je mo¾né zvý¹it tok (tzn. reziduální kapacita ka¾dé její hrany je alespoò 1).
+
+Tento algoritmus lze vyu¾ít i pro hledání maximálního párování v bipartitním gtafu. 
+Nejprve se musí vstupní bipartitní graf (tvoøený dvìmi mno¾inami vrcholù A a B) pøevést na sí» pøidáním zdroje a spotøebièe. V¹echny vrcholy z mno¾iny A se potom napojí hranami na zdroj a tok tìmito hranami se nastaví na 1 smìrem od zdroje. Naopak v¹echny vrcholy z mno¾iny B se napojí hranami na spotøebiè a tok tìmito hranami se nastaví na 1 smìrem ke spotøebièi. Tok ka¾dou hranou z pùvodního grafu se nastaví na 1 smìrem z A do B. Kapacita v¹ech hran se nastaví na 1.
+
+Nad takto sestavenou sítí se poté spusí algoritmus \texttt{Edmonds-Karp} popsaný vý¹e. Po jeho skonèení se do výsledného maximálního párování pøidá ka¾dá hrana, pro kterou platí, ¾e její jeden vrchol je z mno¾iny A, druhý její vrchol je z mno¾iny B, a tok touto hranou je nenulový.
+
+\subsection{Teoretická slo¾itost}
+Poèáteèní pøevod vstupního grafu na sí» a její inicializace má slo¾itost $\mathcal{O}(|E|)$.
+
+Algoritmus prohledávání do ¹íøky má slo¾itost $\mathcal{O}(|V| + |E|)$. Nalezená cesta od zdroje ke spotøebièi musí mít v¾dy nanejvý¹ $|V|-1$ hran, tak¾e operace nalezení hrany v této cestì s nejni¾¹í reziduální kapacitou a aktualizace tokù a reziduálních kapacit na v¹ech v cestì obsa¾ených hranách má slo¾itost $\mathcal{O}(|V|)$. 
+
+Jeliko¾ v¹echny hrany mají kapacitu 1, zvý¹í se velikost toku v ka¾dé iteraci hlavního cyklu o 1. Proto¾e poèáteèní velikost toku je 0, celkový poèet iterací je roven velikosti maximálního toku. Je pøitom zøejmé, ¾e velikost maximálního toku je rovna kardinalitì maximálního párování, která je shora omezená poètem vrcholù. Tak¾e celková slo¾itost hlavního cyklu je $\mathcal{O}((|V| + |E|) * |V|)$. Ale jeliko¾ graf je souvislý, tak platí, ¾e $|E| \geq |V| - 1$, a tudí¾ celková slo¾itost hlavního cyklu je $\mathcal{O}(|E| * |V|)$.
+
+Je zøejmé, ¾e závìreèné pøidání v¹ech hran s nenulovým tokem do maximálního párování má slo¾itost $\mathcal{O}(|E|)$, celková slo¾itost celého algoritmu \texttt{Edmonds-Karp} pro nalezení maximálního párování v bipartitním grafu je tedy $\mathcal{O}(|E|) * |V|)$.
+
+\newpage
+
+\section{Testování}
+
+Pro potøeby experimentálního testování byl napsán jednoduchý generátor bipartitních grafù se zvoleným poètem obou mno¾in uzlù a hran, 
+integrovaný v programu. Experimentální testování probìhlo na serveru \texttt{merlin.fit.vutbr.cz}. 
+Pro graf $G = (B \cup G, E)$ byly voleny rùzné hodnoty poètu uzlù z první mno¾iny $B$, poètu uzlù z druhé mno¾iny $G$ a poètu hran z mno¾iny $E$.
+U toho byla zmìøena doba trvání $t$ samotného algoritmu bez okolního kódu.
+
+\subsection{Hopcroft-Karp algoritmus}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|l|l|l|l|}
+      \hline
+	  $|B|$ & $|G|$ & $|E|$ & $t\,[sec]$ \\
+	  \hline
+	  1000 & 10 & 10 & 0.01 \\
+	  \hline
+	  1000 & 10 & 100 & 0.01 \\
+	  \hline
+	  1000 & 10 & 1 000 & 0.02 \\
+	  \hline
+	  1000 & 10 & 10 000 & 0.05 \\
+	  \hline
+	  1000 & 100 & 10 & 0.01 \\
+	  \hline
+	  1000 & 100 & 100 & 0.01 \\
+	  \hline
+	  1000 & 100 & 1 000 & 0.02 \\
+	  \hline
+	  1000 & 100 & 10 000 & 0.06 \\
+	  \hline
+	  1000 & 100 & 100 000 & 0.48 \\
+	  \hline
+	  1000 & 1000 & 10 & 0.02 \\
+	  \hline
+	  1000 & 1000 & 100 & 0.03 \\
+	  \hline
+	  1000 & 1000 & 1 000 & 0.04 \\
+	  \hline
+	  1000 & 1000 & 10 000 & 0.13 \\
+	  \hline
+	  1000 & 1000 & 100 000 & 0.54 \\
+	  \hline
+    \end{tabular}
+    \caption{Tabulka experimentù pro Hopcroft-Karp algoritmus}
+  \end{center}
+\end{table}
+
+Experimentální testování prokázalo, ¾e slo¾itost algoritmu \texttt{Hopcroft-Karp} pøibli¾nì 
+odpovídá $\mathcal{O}(|E|*\sqrt{|V|})$. Z provedených experimentù vyplývá, ¾e je slo¾itost algoritmu výraznì závislá na poètu hran grafu a pøimìøenì závislá na poètu uzlù grafu. Algoritmus podává velmi dobré výsledky pro øídké grafy
+a o nìco hor¹í výsledky pro hust¹í grafy.
+
+\newpage
+
+\subsection{Edmonds-Karp algoritmus}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|l|l|l|l|}
+      \hline
+	  $|B|$ & $|G|$ & $|E|$ & $t\,[sec]$ \\
+	  \hline
+	  500 & 500 & 1 000 & 1.86 \\
+	  \hline
+	  900 & 100 & 1 000 & 0.81 \\
+	  \hline
+	  1 000 & 1 000 & 1 000 & 4.71 \\
+	  \hline
+	  1 900 & 100 & 1 000 & 1.59 \\
+	  \hline
+	  1 500 & 1 500 & 1 000 & 8.03 \\
+	  \hline
+	  2 900 & 100 & 1 000 & 2.47 \\
+	  \hline
+	  2 000 & 2 000 & 1 000 & 12.34 \\
+	  \hline
+	  3 900 & 100 & 1 000 & 3.23 \\
+	  \hline
+	  2 500 & 2 500 & 1 000 & 15.89 \\
+	  \hline
+	  4 900 & 100 & 1 000 & 4.26 \\
+	  \hline
+	  3 000 & 3 000 & 1 000 & 21.73 \\
+	  \hline
+	  5 900 & 100 & 1 000 & 5.08 \\
+	  \hline
+    \end{tabular}
+    \hspace{1cm}
+    \begin{tabular}{|l|l|l|l|}
+      \hline
+	  $|B|$ & $|G|$ & $|E|$ & $t\,[sec]$ \\
+	  \hline
+	  1 000 & 1 000 & 500 & 2.76 \\
+	  \hline
+	  1 000 & 1 000 & 1 000 & 4.75 \\
+	  \hline
+	  1 000 & 1 000 & 1 500 & 6.45 \\
+	  \hline
+	  1 000 & 1 000 & 2 000 & 7.96 \\
+	  \hline
+	  1 000 & 1 000 & 2 500 & 9.55 \\
+	  \hline
+	  1 000 & 1 000 & 3 000 & 11.38 \\
+	  \hline
+    \end{tabular}
+    \caption{Tabulky experimentù pro Edmonds-Karp algoritmus}
+  \end{center}
+\end{table}
+
+Jak je vidìt z tabulek vý¹e, výsledky experimentù pøibli¾nì odpovídají vý¹e uvedené teoretické èasové slo¾itosti algoritmu \texttt{Edmonds-Karp} $\mathcal{O}(|E|) * |V|)$. Èas potøebný pro jeho vykonání v na¹í implementaci roste pøibli¾nì lineárnì s rostoucím poètem vrcholù (první tabulka) i hran (druhá tabulka). Z první tabulky je také patrné, ¾e pro bipartitní grafy, které mají v jedné ze dvou mno¾in vrcholù výraznì vìt¹í poèet vrcholù ne¾ v druhé mno¾inì, skonèí algoritmus pøi stejném celkovém poètu vrcholù i hran podstatnì døíve. Toto zøejmì plyne z men¹ího poètu mo¾ných cest mezi zdrojem a spotøebièem v sítích vytvoøených z takovýchto grafù. 
+
+\section{Závìr}
+
+Implementovali jsme dva algoritmy pro výpoèet maximálního párování v bipartitních grafech, \texttt{Edmonds-Karp} s teoretickou èasovou slo¾itostí $\mathcal{O}(|E|) * |V|)$ a \texttt{Hopcroft-Karp} s teoretickou èasovou slo¾itostí $\mathcal{O}(|E|*\sqrt{|V|})$. Nad na¹í implementací jsme provedli øadu experimentù, které prokázaly, ¾e èasová slo¾itost na¹í implementace pøibli¾nì odpovídá uvádìné teoretické èasové slo¾itosti pro tyto algoritmy. Podle oèekávání byla doba nutná pro vykonání algoritmu \texttt{Edmonds-Karp} výraznì vy¹¹í ne¾ doba nutná pro vykonání algoritmu \texttt{Hopcroft-Karp} na bipartitním grafu se stejným poètem uzlù a hran.
+
+\section{Ovládání programu}
+
+Program má celkem 6 pøepínaèù, které mohou být zadávány v libovolném poøadí:\\
+
+$-h$: zobrazí nápovìdu
+
+$-c$ $B$ $G$ $E$: vygeneruje bipartitní graf s poèty uzlù $B$ a $G$ a poètem hran $E$
+
+$-l$ $F$: naète bipartitní graf ze souboru $F$
+
+$-f$ $M$: spoèítá maximální párování metodou $M$ ($h$ pro \texttt{Hopcroft-Karp}, $e$ pro \texttt{Edmonds-Karp})
+
+$-g$: vytiskne vstupní graf
+
+$-m$: vytiskne maximální párování\\
+
+Soubor se vstupním grafem musí být ve specifickém  formátu: na ka¾dém øádku jsou jména uzlù oddìlená støedníky. 
+První øádek obsahuje v¹echny uzly z první mno¾iny, druhý øádek v¹echny uzly z druhé mno¾iny a na ostatních øádcích jsou seznamy sousedù (v¾dy jako uzel následovaný svými sousedy). Viz. pøilo¾ený vzorový vstupní soubor \texttt{input.txt}.
+
+\end{document}
