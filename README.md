@@ -38,6 +38,9 @@ První řádek obsahuje všechny uzly z první množiny, druhý řádek všechny
 
 **Komentář učitele k hodnocení:**
 
-Porovnání ok. Výsledky potvrzují předpoklad, dokumentované a zdůvodněné. Testy ok. Bylo by vhodné porovnat také prostorové složitosti obou algoritmů.
+Porovnání ok. 
+Výsledky potvrzují předpoklad, dokumentované a zdůvodněné. 
+Testy ok. 
+Bylo by vhodné porovnat také prostorové složitosti obou algoritmů.
 
 **24/25**
